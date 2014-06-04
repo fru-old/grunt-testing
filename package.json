@@ -1,0 +1,37 @@
+{
+  "name": "grunt-testing",
+  "description": "All in one testing for javascript and css.",
+  "version": "0.0.1",
+  "homepage": "https://github.com/fru/grunt-testing",
+  "author": {
+    "name": "Florian Rueberg",
+    "url": "https://github.com/fru"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/fru/grunt-testing.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fru/grunt-testing/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/fru/grunt-testing/blob/master/license.md"
+    }
+  ],
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "scripts": {
+    "test": "grunt test"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "grunt": "~0.4.1"
+  },
+  "keywords": [
+    "gruntplugin"
+  ]
+}
