@@ -11,6 +11,8 @@
 module.exports = function(grunt) {
 
 	var path = require('path');
+	var instrument = require('./libs/instrument.js');
+	var temp = require('./libs/temp.js');
 	
 	// Get an asset file, local to the root of the project.
 	var asset = path.join.bind(null, __dirname, '..');
@@ -24,9 +26,41 @@ module.exports = function(grunt) {
 		}
 	};
 
-	console.log("test");	
 	grunt.registerMultiTask('testing', '', function() {
-		console.log("test123");	
+
+		var options = this.options({
+			urls: [],
+			urlsBase: "",
+			
+			serveFolders: [],
+			servePort: 0,
+			serveHttps: false,
+			
+			force: false,
+			timeout: 10000,
+			tempId: "",
+
+			expose: true,
+			examples: true,
+			converage: true,
+
+			output: "output",
+			reporters: ['default']
+		});
+
+		var done = this.async();
+		var counter = 0;
+		var length = this.filesSrc.length
+
+		this.filesSrc.forEach(function(src){
+			var dest = temp('grunt-testing-temp-files', options.tempId);
+			instrument(path.resolve(src),path.resolve(dest, src), function(){
+				counter++;
+				if(counter >= length){
+					done();
+				}
+			});
+		})
 	});
 	
 	
