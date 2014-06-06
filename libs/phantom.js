@@ -1,1 +1,0 @@
-// https://github.com/gruntjs/grunt-lib-phantomjs/blob/master/lib/phantomjs.js

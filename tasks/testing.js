@@ -54,6 +54,7 @@ module.exports = function(grunt) {
 
 		this.filesSrc.forEach(function(src){
 			var dest = temp('grunt-testing-temp-files', options.tempId);
+			console.log(path.resolve(dest, src));
 			instrument(path.resolve(src),path.resolve(dest, src), function(){
 				counter++;
 				if(counter >= length){
