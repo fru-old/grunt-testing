@@ -6,48 +6,51 @@ var path = require('path');
 var fs = require('fs');
 var mkdirp = require('mkdirp');
 
-module.exports = function(inputFile, outputFile, done){
-  fs.readFile(inputFile, 'utf8', function (err,data) {
+/*
+ * @see http://gotwarlost.github.io/istanbul/public/apidocs/classes/Instrumenter.html
+ * @see http://esprima.org/doc/index.html
+ * @see https://github.com/Constellation/escodegen/wiki/API
+ */
+module.exports = function(inputFile, inputContent){
 
-    // http://gotwarlost.github.io/istanbul/public/apidocs/classes/Instrumenter.html
-    var result = new Instrumenter({
-      preserveComments: true,
-      noCompact: true,
-    }).instrumentSync(data, inputFile);
+  var result = new Instrumenter({
+    preserveComments: true,
+    noCompact: true,
+  }).instrumentSync(inputContent, inputFile);
 
-    // http://esprima.org/doc/index.html
-    result = esprima.parse(result, {
-      comment: true,
-      range: true,
-      tokens: true
-    });
+  result = esprima.parse(result, {
+    comment: true,
+    range: true,
+    tokens: true
+  });
 
-    estraverse.attachComments(result, result.comments, result.tokens);
+  estraverse.attachComments(result, result.comments, result.tokens);
 
-    estraverse.traverse(result, {
-      enter: function (node, parent) {
-        if(node.body && node.body.length){
-          for(var i = 0; i < node.body.length; i++){
-            var comments = node.body[i].leadingComments;
-            if(comments){
-              buildAssignments(node.body, i+1, parseComments(comments));
-            }
-            var trailing = node.body[i].trailingComments;
-            if(trailing){
-              buildAssignments(node.body, i+1, parseComments(trailing));
-            }
+  var comments = [];
+
+  estraverse.traverse(result, {
+    enter: function (node, parent) {
+      if(node.body && node.body.length){
+        for(var i = 0; i < node.body.length; i++){
+          var comments = node.body[i].leadingComments;
+          if(comments){
+            buildAssignments(node.body, i+1, comment = parseComments(comments));
+            comments.push(comment);
+          }
+          var trailing = node.body[i].trailingComments;
+          if(trailing){
+            buildAssignments(node.body, i+1, comment = parseComments(trailing));
+            comments.push(comment);
           }
         }
       }
-    });
-
-    // https://github.com/Constellation/escodegen/wiki/API
-    result = escodegen.generate(result);
-
-    mkdirp(path.dirname(outputFile), function(err) { 
-      fs.writeFile(outputFile, result, done);
-    });
+    }
   });
+
+  return {
+    code: escodegen.generate(result),
+    tests: comments
+  };
 }
 
 function buildAssignments(target, index, comment){
@@ -58,46 +61,30 @@ function buildAssignments(target, index, comment){
 }
 
 function buildAssignment(expose){
-  // TODO setting
-  var value = "grunt-testing-" + expose.key;
+  var key = "grunt-testing-" + expose.key;
+
+  var expression = "this["+key+"] = "+expose.name;
+  expression = "try{"+ expression +"}catch(e){};";
+
   return {
     "type": "ExpressionStatement",
     "expression": {
-      "type": "AssignmentExpression",
-      "operator": "=",
-      "left": {
-        "type": "MemberExpression",
-        "computed": true,
-        "object": {
-          "type": "CallExpression",
-          "callee": {
-            "type": "CallExpression",
-            "callee": {
-              "type": "Identifier",
-              "name": "Function"
-            },
-            "arguments": [
-              {
-                "type": "Literal",
-                "value": "return this",
-                "raw": "'return this'"
-              }
-            ]
-          },
-          "arguments": []
+      "type": "CallExpression",
+      "callee": {
+        "type": "CallExpression",
+        "callee": {
+          "type": "Identifier",
+          "name": "Function"
         },
-        "property": {
+        "arguments": [{
           "type": "Literal",
-          "value": value,
-          "raw": "'" + value + "'"
-        }
+          "value": expression,
+          "raw": '"'+expression+'"'
+        }]
       },
-      "right": {
-        "type": "Identifier",
-        "name": expose.name
-      }
+      "arguments": []
     }
-  };  
+  };
 }
 
 // http://stackoverflow.com/questions/1661197/valid-characters-for-javascript-variable-names

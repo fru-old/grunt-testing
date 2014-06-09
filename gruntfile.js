@@ -4,6 +4,7 @@ module.exports = function(grunt) {
     mochaTest: {
       test: {
         options: {
+          timeout: 6000,
           reporter: 'spec',
           clearRequireCache: true,
           mocha: require('mocha')
