@@ -5,7 +5,8 @@ module.exports = function(grunt) {
     testing:{
       'qunit-advanced-example':{
         options: { type: 'qunit' },
-        src: 'testfiles/**/*.js'
+        src: 'testfiles/**/*.js',
+        lib: 'testfiles/**/*.js'
       }
     }
   });

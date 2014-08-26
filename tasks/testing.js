@@ -74,38 +74,6 @@ module.exports = function(grunt) {
 				source.push(instrumented.code);
 			}));
 		});
-		/*
-		inline(root, function(err, ){
-			
-			dom = $;
-			self.filesSrc.forEach(function(src){
-				utils.read(path.resolve(src), '', asynch(function(err, content){
-					var instrumented = instrument(src, content);
-					tests = tests.concat(instrumented.tests);
-					content = '<script>'+instrumented.code+'</script>';
-					dom('body').append(content);
-				}));
-			});
-		});
-
-		var result = dom.html();
-
-			//TODO remove workarond - remove package too
-			result = new (require('html-entities').XmlEntities)().decode(result);
-
-			utils.write(path.resolve(options.output, 'harness.html'), result, function(err){
-				if(err)warnUnlessForced(err);
-				done();				
-			});
-
-			/*
-			var dest = temp('grunt-testing-temp-files', options.tempId);
-			console.log(path.resolve(dest, src));
-			instrument(path.resolve(src),path.resolve(dest, src), function(){
-				counter++;
-				if(counter >= length){
-					done();
-				}
-			});*/
+		
 	});
 };
